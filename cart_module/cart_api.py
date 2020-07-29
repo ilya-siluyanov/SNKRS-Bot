@@ -5,17 +5,19 @@ def is_cart_empty(cart):
     try:
         cart.find_element_by_tag_name("span")
         return False
-    except Exception as e:
-        print(str(e))
+    except Exception:
+        print("The cart is empty")
         return True
 
 
 def try_to_push(cart, submit):
     while is_cart_empty(cart):
-        time.sleep(0.1)
         try:
             submit.click()
+            time.sleep(0.5)
+            print("An item submitted to the cart")
         except Exception:
+            print("something is wrong with submit button")
             try_to_push(cart, submit)
 
 
@@ -30,8 +32,10 @@ def get_cart_link(driver):
 
 
 def add_to_cart(driver, link, size):
+    print("GET : {}".format(link))
     driver.get(link)
     cart = get_cart_link(driver)
+    print("The cart found")
     container = driver.find_elements_by_class_name("buying-tools-container")[0]
     found = False
     sizes_container = container.find_element_by_tag_name("ul").find_elements_by_tag_name("li")
@@ -43,6 +47,7 @@ def add_to_cart(driver, link, size):
         real_size = row_size.split(" ")[3][0:-1]
         if real_size == size:
             button.click()
+            print("{} size chose".format(real_size))
             found = True
             break
     if not found:

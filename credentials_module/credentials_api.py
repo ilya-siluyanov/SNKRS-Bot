@@ -8,6 +8,7 @@ def click(b):
     try:
         # TODO: properly works
         b.click()
+        print(b.text)
         return
     except StaleElementReferenceException:
         return
@@ -20,10 +21,11 @@ def click(b):
 def go_to_credentials_page(driver):
     buttons = driver.find_elements_by_tag_name("button")
     nextPageButton = ""
+    print("try to push button to make visible order button")
     for button in buttons:
         if button.get_attribute("data-automation") == "go-to-checkout-button":
             button.click()
-            print("button shows all other buttons pressed")
+            print("button shows order button pressed")
             break
         if button.get_attribute("data-automation") == "guest-checkout-button":
             nextPageButton = button
