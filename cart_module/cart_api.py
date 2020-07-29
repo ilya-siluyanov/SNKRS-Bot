@@ -1,5 +1,9 @@
 import time
 
+SLEEP_TIMEOUT = 1
+k = 1
+maxPress = 1
+
 
 def is_cart_empty(cart):
     try:
@@ -11,11 +15,16 @@ def is_cart_empty(cart):
 
 
 def try_to_push(cart, submit):
+    submitPressed = 0
     while is_cart_empty(cart):
         try:
             submit.click()
-            time.sleep(0.5)
-            print("An item submitted to the cart")
+            print("An attempt to push the item to the cart")
+            time.sleep(SLEEP_TIMEOUT)
+            submitPressed += 1
+            if submitPressed >= maxPress:
+                time.sleep(k * SLEEP_TIMEOUT)
+                submitPressed = 0
         except Exception:
             print("something is wrong with submit button")
             try_to_push(cart, submit)
@@ -54,5 +63,6 @@ def add_to_cart(driver, link, size):
         return False
 
     submit = container.find_element_by_tag_name("div").find_element_by_tag_name("button")
+    time.sleep(SLEEP_TIMEOUT)
     try_to_push(cart, submit)
     return True
