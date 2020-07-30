@@ -4,14 +4,18 @@ import time
 
 def push_button(XPath):
     try:
-        driver.find_element_by_xpath(XPath).click()
+        smth =  driver.find_element_by_xpath(XPath)
+        if smth != None:
+            smth.click()
     except:
         return True
     return False
 
 def send_inf(XPath, text):
     try:
-        driver.find_element_by_xpath(XPath).send_keys(text)
+        smth =  driver.find_element_by_xpath(XPath)
+        if smth != None:
+            smth.send_keys(text)
     except:
         return True
     return False
@@ -27,10 +31,9 @@ middle_time=time.time()
 
 while push_button('//*[@id="root"]/div/div/div[1]/div/div[3]/div[2]/div/section[1]/div[2]/aside/div/div[2]/div/div[2]/ul/li[9]/button'):
     pass
-while push_button('//*[@id="root"]/div/div/div[1]/div/div[3]/div[2]/div/section[1]/div[2]/aside/div/div[2]/div/div[2]/div/button'):
-    pass
 while push_button('//*[@id="root"]/div/div/div[2]/div/div/div/div/div[3]/button[2]'):
-    pass
+    push_button('//*[@id="root"]/div/div/div[1]/div/div[3]/div[2]/div/section[1]/div[2]/aside/div/div[2]/div/div[2]/div/button')
+    time.sleep(0.1)
 while send_inf('//*[@id="Shipping_LastName"]', "Ты"):
     pass
 send_inf('//*[@id="Shipping_FirstName"]', "Кто")

@@ -1,6 +1,3 @@
-import time
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import *
 
 SLEEP_TIMEOUT = 0
@@ -37,17 +34,9 @@ def click(b):
 
 
 def go_to_credentials_page(driver):
-    buttons = driver.find_element_by_id("react-root").find_elements_by_tag_name("button")
-    next_page_button = ""
-    while next_page_button == "":
-        for button in buttons:
-            if button.text == "Оформить заказ без регистрации":
-                next_page_button = button
-                break
-    url = driver.current_url
-    while driver.current_url == url:
-        time.sleep(0.1)
-        click(next_page_button)
+    button = driver.find_element_by_xpath(
+        "/html[@class='no-scroll']/body/div[@id='root']/div[@class='u-full-width u-full-height']/div[@class='root-controller remove-outline no-scroll']/div[@class='js-modal modal show']/div[@class='modal-scroll-container u-full-height']/div[@class='d-md-t u-full-height u-full-width p0-sm']/div[@class='d-md-tc u-full-width u-full-height va-sm-t']/div[@class='cart-item-modal-content-container ncss-container p6-sm bg-white']/div[@class='ncss-row cart-button-row']/button[@class='ncss-btn-black ncss-brand fs16-sm pt3-sm pr5-sm pb3-sm pl5-sm mt4-sm mr4-sm u-uppercase cart-link']")
+    button.click()
 
 
 def agree(checkbox):
@@ -60,9 +49,11 @@ def agree(checkbox):
 
 def get_checkout_form(driver):
     try:
-        return driver.find_element_by_name("checkout_form")
+        res = driver.find_element_by_name("checkout_form")
+        if res is not None:
+            return res
     except:
-        get_checkout_form(driver)
+        return get_checkout_form(driver)
 
 
 def get_card_fields_iframe(driver):
@@ -81,49 +72,48 @@ def get_card_fields_iframe(driver):
 
 def fill_card_fields(driver):
     try:
-        card_number_field = driver.find_element_by_id("card_number")
+        card_number_field = driver.find_element_by_xpath('//*[@id="card_number"]')
         card_number_field.send_keys(cardnumber)
-        expiry_month_field = driver.find_element_by_id("expiry_month")
+        expiry_month_field = driver.find_element_by_xpath('//*[@id="expiry_month"]')
         expiry_month_field.send_keys(expiry_month)
 
-        expiry_year_field = driver.find_element_by_id("expiry_year")
+        expiry_year_field = driver.find_element_by_xpath('//*[@id="expiry_year"]')
         expiry_year_field.send_keys(expiry_year)
 
-        cvv_field = driver.find_element_by_id("cvv")
+        cvv_field = driver.find_element_by_xpath('//*[@id="cvv"]')
         cvv_field.send_keys(cvv)
         if card_number_field.get_attribute("value") != "" and expiry_month_field.get_attribute("value") != "" and \
                 expiry_year_field.get_attribute("value") != "" and cvv_field.get_attribute("value") != "":
-            driver.find_element_by_id("hostedPaymentsubmitBtn").click()
+            # TODO:CHANGE THIS SHIT
+            driver.quit()
+            return
+            driver.find_element_by_xpath("//*[@id='hostedPaymentsubmitBtn']").click()
     except Exception as e:
         print(str(e))
         fill_card_fields(driver)
 
 
 def fill_credentials(driver):
-    print(driver.current_url)
-    while not driver.current_url.startswith("https://secure-global.nike.com"):
-        print(driver.current_url)
     firstForm = get_checkout_form(driver)
-    firstForm.find_element_by_id("Shipping_LastName").send_keys(surname)
-    firstForm.find_element_by_id("Shipping_FirstName").send_keys(name)
-    firstForm.find_element_by_id("Shipping_MiddleName").send_keys(patr)
-    firstForm.find_element_by_id("Shipping_PostCode").send_keys(pcode)
-    Select(firstForm.find_element_by_id("Shipping_Region")) \
-        .select_by_visible_text(shippingRegion)
-    firstForm.find_element_by_id("Shipping_PostCode").send_keys(pcode)
-    firstForm.find_element_by_id("Shipping_City").send_keys(city)
-    firstForm.find_element_by_id("Shipping_Address1").send_keys(street_house_number)
-    firstForm.find_element_by_id("Shipping_Address2").send_keys(flat_floor)
-    firstForm.find_element_by_id("Shipping_phonenumber").send_keys(pnumber)
-    firstForm.find_element_by_id("shipping_Email").send_keys(email)
-    agreement_section = driver.find_element_by_id("gdprSection")
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_LastName"]').send_keys(surname)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_FirstName"]').send_keys(name)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_MiddleName"]').send_keys(patr)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_PostCode"]').send_keys(pcode)
+    # Select(firstForm.find_element_by_id("Shipping_Region")) \
+    #    .select_by_visible_text(shippingRegion)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_PostCode"]').send_keys(pcode)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_City"]').send_keys(city)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_Address1"]').send_keys(street_house_number)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_Address2"]').send_keys(flat_floor)
+    firstForm.find_element_by_xpath('.//*[@id="Shipping_phonenumber"]').send_keys(pnumber)
+    firstForm.find_element_by_xpath('.//*[@id="shipping_Email"]').send_keys(email)
+    agreement_section = driver.find_element_by_xpath('.//*[@id="gdprSection"]')
 
     agreement_checkbox = agreement_section.find_element_by_tag_name("span")
     agree(agreement_checkbox)
 
-    driver.find_element_by_id("shippingSubmit").click()
-    driver.find_element_by_id("billingSubmit").click()
+    driver.find_element_by_xpath('.//*[@id="shippingSubmit"]').click()
+    driver.find_element_by_xpath('.//*[@id="billingSubmit"]').click()
 
     get_card_fields_iframe(driver)
     fill_card_fields(driver)
-
