@@ -3,7 +3,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import *
 
-SLEEP_TIMEOUT = 1
+SLEEP_TIMEOUT = 0
 
 # TODO: fill correct values
 surname = "inputSurname"
@@ -23,7 +23,6 @@ cvv = "738"
 
 
 def click(b):
-    time.sleep(0.1)
     try:
         # TODO: properly works
         b.click()
@@ -40,15 +39,6 @@ def click(b):
 def go_to_credentials_page(driver):
     buttons = driver.find_element_by_id("react-root").find_elements_by_tag_name("button")
     next_page_button = ""
-    print("try to push button to make visible order button")
-    for button in buttons:
-        if button.get_attribute("data-automation") == "go-to-checkout-button":
-            try:
-                button.click()
-            except Exception as e:
-                print(str(e))
-            print("button shows order button pressed")
-            break
     while next_page_button == "":
         for button in buttons:
             if button.text == "Оформить заказ без регистрации":
@@ -56,7 +46,7 @@ def go_to_credentials_page(driver):
                 break
     url = driver.current_url
     while driver.current_url == url:
-        time.sleep(SLEEP_TIMEOUT)
+        time.sleep(0.1)
         click(next_page_button)
 
 
@@ -65,7 +55,6 @@ def agree(checkbox):
         checkbox.click()
     except Exception as e:
         print(e)
-        time.sleep(0.1)
         agree(checkbox)
 
 
@@ -73,7 +62,6 @@ def get_checkout_form(driver):
     try:
         return driver.find_element_by_name("checkout_form")
     except:
-        time.sleep(0.1)
         get_checkout_form(driver)
 
 
@@ -88,7 +76,6 @@ def get_card_fields_iframe(driver):
         driver.switch_to.frame(iframe)
     except Exception as e:
         print(str(e))
-        time.sleep(0.3)
         get_card_fields_iframe(driver)
 
 
@@ -109,7 +96,6 @@ def fill_card_fields(driver):
             driver.find_element_by_id("hostedPaymentsubmitBtn").click()
     except Exception as e:
         print(str(e))
-        time.sleep(0.1)
         fill_card_fields(driver)
 
 
@@ -117,7 +103,6 @@ def fill_credentials(driver):
     print(driver.current_url)
     while not driver.current_url.startswith("https://secure-global.nike.com"):
         print(driver.current_url)
-        time.sleep(0.1)
     firstForm = get_checkout_form(driver)
     firstForm.find_element_by_id("Shipping_LastName").send_keys(surname)
     firstForm.find_element_by_id("Shipping_FirstName").send_keys(name)
@@ -141,3 +126,4 @@ def fill_credentials(driver):
 
     get_card_fields_iframe(driver)
     fill_card_fields(driver)
+

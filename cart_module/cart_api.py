@@ -1,8 +1,9 @@
 import time
+from selenium.webdriver.common.by import By
 
-SLEEP_TIMEOUT = 1
-k = 1
-maxPress = 1
+SLEEP_TIMEOUT = 0
+k = 0
+maxPress = 0
 
 
 def is_cart_empty(cart):
@@ -14,30 +15,21 @@ def is_cart_empty(cart):
         return True
 
 
-def try_to_push(cart, submit):
-    submitPressed = 0
+def push_while_not_added(cart, submit):
+    sleep_time = 0.2
     while is_cart_empty(cart):
         try:
             submit.click()
             print("An attempt to push the item to the cart")
-            time.sleep(SLEEP_TIMEOUT)
-            submitPressed += 1
-            if submitPressed >= maxPress:
-                time.sleep(k * SLEEP_TIMEOUT)
-                submitPressed = 0
+            time.sleep(sleep_time)
         except Exception:
             print("something is wrong with submit button")
-            try_to_push(cart, submit)
+            push_while_not_added(cart, submit)
 
 
 def get_cart_link(driver):
-    links = driver.find_elements_by_tag_name("a")
-    cart = ""
-    for lin in links:
-        if lin.get_attribute("aria-label") == "Корзина":
-            cart = lin
-            break
-    return cart
+    return driver.find_element_by_tag_name("ul").find_element(By.XPATH,
+                                                              "/html/body/div[@id='root']/div[@class='u-full-width u-full-height']/div[@class='root-controller remove-outline']/div[@class='main-layout']/div[@class='content-wrapper']/header[@class='ncss-col-sm-12']/div[@class='d-lg-h d-sm-b']/section[@class='mobile-top-nav']/div[@class='prl4-sm prl7-lg va-sm-m ta-sm-r']/a[@class='bg-transparent prl3-sm pt4-sm pb4-sm d-sm-b shopping-cart jewel-cart-container']")
 
 
 def add_to_cart(driver, link, size):
@@ -46,6 +38,7 @@ def add_to_cart(driver, link, size):
     cart = get_cart_link(driver)
     print("The cart found")
     container = driver.find_elements_by_class_name("buying-tools-container")[0]
+
     found = False
     sizes_container = container.find_element_by_tag_name("ul").find_elements_by_tag_name("li")
     for li in sizes_container:
@@ -62,7 +55,9 @@ def add_to_cart(driver, link, size):
     if not found:
         return False
 
-    submit = container.find_element_by_tag_name("div").find_element_by_tag_name("button")
+    submit = container.find_elements_by_tag_name("button")[-1]
     time.sleep(SLEEP_TIMEOUT)
-    try_to_push(cart, submit)
+    push_while_not_added(cart, submit)
+    # submit.click()
     return True
+
